@@ -40,6 +40,28 @@ app.use(express.urlencoded({ extended: true, limit: '15mb' }));
 // تقديم ملفات الصور المرفوعة
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// التأكد من جاهزية اتصال قاعدة البيانات قبل معالجة الطلبات (ضروري لبيئات Serverless)
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+  } catch (e) {
+    // Continue even if DB fails, fallback mode will handle it
+  }
+  next();
+});
+
+// الصفحة الرئيسية لخادم الباك إند
+app.get('/', (req, res) => {
+  const dbStatus = getDBStatus();
+  res.json({
+    status: 'online',
+    service: 'Mohamed Hamdy Portfolio REST API',
+    message: 'خادم الباك إند يعمل بنجاح على Vercel Serverless',
+    timestamp: new Date().toISOString(),
+    database: dbStatus,
+  });
+});
+
 // فحص صحة السيرفر وقاعدة البيانات
 app.get('/api/health', (req, res) => {
   const dbStatus = getDBStatus();
@@ -59,16 +81,6 @@ app.use('/api/messages', messageRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/resume', resumeRoutes);
-
-// التأكد من جاهزية اتصال قاعدة البيانات قبل معالجة الطلبات (ضروري لبيئات Serverless)
-app.use(async (req, res, next) => {
-  try {
-    await connectDB();
-  } catch (e) {
-    // Continue even if DB fails, fallback mode will handle it
-  }
-  next();
-});
 
 // معالجة المسارات غير المعرفة
 app.use('/api/*', (req, res) => {
