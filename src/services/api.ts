@@ -65,6 +65,11 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
+    if (response.status === 401) {
+      // إزالة التوكن المنتهي أو غير الصالح وإشعار التطبيق لتفادي تعليق الجلسة
+      authService.removeToken();
+      window.dispatchEvent(new CustomEvent('auth:expired'));
+    }
     throw new Error(data.message || `خطأ في الاتصال بالخادم (${response.status})`);
   }
 
@@ -102,7 +107,7 @@ export const projectsApi = {
       const res = await request<{ success: boolean; data: Project[] }>(
         `/projects?${query.toString()}`
       );
-      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+      if (res.success && Array.isArray(res.data)) {
         return res.data;
       }
       return portfolioProjects;

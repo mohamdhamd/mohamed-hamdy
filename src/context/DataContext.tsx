@@ -63,11 +63,14 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       if (authService.hasToken()) {
         const res = await messagesApi.getAll();
-        setMessages(res.messages);
-        setUnreadCount(res.unreadCount);
+        setMessages(res.messages || []);
+        setUnreadCount(res.unreadCount || 0);
       }
-    } catch (err) {
-      console.warn('⚠️ خطأ أثناء تحديث الرسائل في DataContext:', err);
+    } catch (err: any) {
+      if (err?.message?.includes('401') || err?.message?.includes('غير مصرح') || err?.message?.includes('رمز الدخول')) {
+        authService.removeToken();
+      }
+      console.warn('⚠️ خطأ أثناء تحديث الرسائل في DataContext:', err?.message || err);
     }
   }, []);
 
@@ -100,16 +103,16 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       // 2. جلب البيانات من الـ API
       const [fetchedProjects, fetchedCerts, fetchedSettings, fetchedResume] = await Promise.all([
-        projectsApi.getAll(),
+        projectsApi.getAll({ all: true }),
         certificatesApi.getAll(),
         settingsApi.get(),
         resumeApi.get(),
       ]);
 
-      if (fetchedProjects && fetchedProjects.length > 0) {
+      if (fetchedProjects && Array.isArray(fetchedProjects)) {
         setProjects(fetchedProjects);
       }
-      if (fetchedCerts && fetchedCerts.length > 0) {
+      if (fetchedCerts && Array.isArray(fetchedCerts) && fetchedCerts.length > 0) {
         setCertificates(fetchedCerts);
       }
       if (fetchedSettings) {

@@ -1,5 +1,6 @@
 // مسارات رسائل واستفسارات التواصل مع الدعم التلقائي المزدوج (MongoDB + Memory Fallback)
 import express from 'express';
+import mongoose from 'mongoose';
 import { Message } from '../models/Message.js';
 import { requireAuth } from '../middleware/auth.js';
 import { isMongoDBConnected } from '../config/db.js';
@@ -108,7 +109,7 @@ router.patch('/:id/read', requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
 
-    if (isMongoDBConnected()) {
+    if (isMongoDBConnected() && mongoose.Types.ObjectId.isValid(id)) {
       try {
         const message = await Message.findById(id);
         if (message) {
@@ -137,7 +138,7 @@ router.delete('/:id', requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
 
-    if (isMongoDBConnected()) {
+    if (isMongoDBConnected() && mongoose.Types.ObjectId.isValid(id)) {
       try {
         await Message.findByIdAndDelete(id);
       } catch (dbErr) {

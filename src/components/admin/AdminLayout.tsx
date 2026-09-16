@@ -41,7 +41,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ onBackToSite }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isNewProjectModalOpen, setIsNewProjectModalOpen] = useState(false);
 
-  // التحقق من صلاحية الجلسة عند التحميل
+  // التحقق من صلاحية الجلسة عند التحميل والاستماع لانتهاء الصلاحية
   useEffect(() => {
     const checkAuth = async () => {
       if (authService.hasToken()) {
@@ -55,6 +55,12 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ onBackToSite }) => {
       setIsCheckingAuth(false);
     };
     checkAuth();
+
+    const handleAuthExpired = () => {
+      setCurrentUser(null);
+    };
+    window.addEventListener('auth:expired', handleAuthExpired);
+    return () => window.removeEventListener('auth:expired', handleAuthExpired);
   }, []);
 
   const handleLogout = () => {
@@ -77,7 +83,10 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ onBackToSite }) => {
   if (!currentUser) {
     return (
       <AdminLogin
-        onLoginSuccess={(user) => setCurrentUser(user)}
+        onLoginSuccess={(user) => {
+          setCurrentUser(user);
+          refreshData();
+        }}
         onBackToSite={onBackToSite}
       />
     );

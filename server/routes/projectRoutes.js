@@ -1,5 +1,6 @@
 // مسارات مشاريع البورتفوليو مع الدعم التلقائي المزدوج (MongoDB + Memory Fallback)
 import express from 'express';
+import mongoose from 'mongoose';
 import { Project } from '../models/Project.js';
 import { requireAuth } from '../middleware/auth.js';
 import { isMongoDBConnected } from '../config/db.js';
@@ -178,14 +179,19 @@ router.delete('/:id', requireAuth, async (req, res) => {
 
     if (isMongoDBConnected()) {
       try {
-        await Project.findOneAndDelete({ id });
+        const query = {
+          $or: [
+            { id: id },
+            ...(mongoose.Types.ObjectId.isValid(id) ? [{ _id: id }] : [])
+          ]
+        };
+        await Project.findOneAndDelete(query);
       } catch (dbErr) {
         console.warn('DB delete failed, fallback:', dbErr.message);
       }
     }
 
-    const initialLen = memoryStore.projects.length;
-    memoryStore.projects = memoryStore.projects.filter((p) => p.id !== id);
+    memoryStore.projects = memoryStore.projects.filter((p) => p.id !== id && p._id !== id);
 
     return res.json({ success: true, message: 'تم حذف المشروع بنجاح' });
   } catch (error) {
