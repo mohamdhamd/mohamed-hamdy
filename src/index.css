@@ -1,0 +1,364 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --void: #05070F;
+  --deep: #0C1226;
+  --ink: #16203F;
+  --brass: #C9A227;
+  --moonlight: #E6E2D3;
+  --dust: #A4AFC4;
+}
+
+html, body {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+  max-width: 100vw;
+  width: 100%;
+}
+
+/* تنسيق متناسق للخطوط بين العربية (Almarai) والإنجليزية (Plus Jakarta Sans & Space Grotesk) */
+html[lang="ar"], body[dir="rtl"] {
+  font-family: 'Almarai', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+}
+
+html[lang="en"], body[dir="ltr"] {
+  font-family: 'Plus Jakarta Sans', 'Almarai', system-ui, -apple-system, sans-serif;
+}
+
+html[lang="ar"] .font-display {
+  font-family: 'Almarai', 'Space Grotesk', system-ui, -apple-system, sans-serif;
+}
+
+html[lang="en"] .font-display {
+  font-family: 'Space Grotesk', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+}
+
+/* مؤشر الماوس الفلكي على شكل نجمة ذهبية مشعة */
+html, body {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M12 1 L14.5 9.5 L23 12 L14.5 14.5 L12 23 L9.5 14.5 L1 12 L9.5 9.5 Z' fill='%23FFFFFF' stroke='%23C9A227' stroke-width='1.5'/%3E%3Ccircle cx='12' cy='12' r='2' fill='%23C9A227'/%3E%3C/svg%3E") 12 12, auto;
+}
+
+button, a, input, [role="button"], .cursor-pointer {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='none' stroke='%23C9A227' stroke-width='1' stroke-dasharray='2 3' opacity='0.7'/%3E%3Cpath d='M16 2 L19 13 L30 16 L19 19 L16 30 L13 19 L2 16 L13 13 Z' fill='%23E0B739' stroke='%23FFFFFF' stroke-width='1.2'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23FFFFFF'/%3E%3C/svg%3E") 16 16, pointer !important;
+}
+
+/* شريط تمرير عصري فائق النعومة */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #05070F;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #16203F;
+  border-radius: 9999px;
+  border: 1px solid rgba(201, 162, 39, 0.2);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #C9A227;
+}
+
+/* إخفاء شريط التمرير للعناصر السلسة */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* بطاقات التوهج التفاعلية */
+.glass-card {
+  background: rgba(12, 18, 38, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(22, 32, 63, 0.8);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card:hover {
+  border-color: rgba(201, 162, 39, 0.45);
+  box-shadow: 0 10px 30px -10px rgba(201, 162, 39, 0.15), 0 0 1px 1px rgba(201, 162, 39, 0.2);
+  transform: translateY(-4px);
+}
+
+/* تأثير التوهج الموضعي للماوس فوق الكروت */
+.card-spotlight {
+  position: relative;
+  overflow: hidden;
+}
+
+.card-spotlight::before {
+  content: '';
+  position: absolute;
+  top: var(--mouse-y, -1000px);
+  left: var(--mouse-x, -1000px);
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(201, 162, 39, 0.12) 0%, transparent 70%);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.card-spotlight:hover::before {
+  opacity: 1;
+}
+
+/* ==========================================================
+   حركات الظهور الفلكية الانسيابية عند التمرير (Silky Scroll Reveal System)
+   مصممة لتقديم تجربة بصرية فائقة النعومة ومريحة جداً للعين:
+   1. تأثير التركيز البصري (Optical Depth-of-field Blur Focus) لمنع القفزات الفجائية
+   2. تخميد ناعم بانسيابية فيزيائية cubic-bezier(0.16, 1, 0.3, 1)
+   3. تتابع زمني مريح (Harmonious Stagger Waves)
+   4. وميض شعاع النجوم الاستقراري (Luminescent Starlight Sheen)
+   ========================================================== */
+
+/* الأساس لكل العناصر المتحركة عند التمرير */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(28px);
+  filter: blur(4px);
+  transition:
+    opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform, filter;
+}
+
+.reveal-on-scroll.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0px);
+}
+
+/* حركة الكروت الفضائية (Card Reveal) */
+.card-reveal {
+  opacity: 0;
+  transform: translateY(36px) scale(0.975);
+  filter: blur(6px);
+  transition:
+    opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform, filter;
+}
+
+.card-reveal.is-revealed {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: blur(0px);
+}
+
+/* وميض فلكي رقيق على الحافة العلوية للكارت عند استقراره */
+.card-sheen {
+  position: relative;
+  overflow: hidden;
+}
+
+.card-sheen::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -80%;
+  width: 60%;
+  height: 1.5px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(201, 162, 39, 0.3) 25%,
+    rgba(255, 255, 255, 0.95) 50%,
+    rgba(201, 162, 39, 0.3) 75%,
+    transparent 100%
+  );
+  pointer-events: none;
+  opacity: 0;
+}
+
+.card-reveal.is-revealed .card-sheen::after,
+.reveal-on-scroll.is-revealed.card-sheen::after,
+.is-revealed .card-sheen::after {
+  animation: card-sheen-sweep 1.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: calc(var(--reveal-delay, 0ms) + 0.35s);
+}
+
+@keyframes card-sheen-sweep {
+  0% {
+    left: -70%;
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    left: 125%;
+    opacity: 0;
+  }
+}
+
+/* ==========================================================
+   حركات ظهور النصوص والعناوين عند التمرير (Text Scroll Reveal)
+   تنساب العناوين بهدوء ثم تتبعها الفقرات بتناغم بصري مريح
+   ========================================================== */
+
+/* حاوية النص أو العنصر النصي */
+.text-reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  filter: blur(4px);
+  transition:
+    opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--text-delay, 0ms);
+  will-change: opacity, transform, filter;
+}
+
+.text-reveal.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0px);
+}
+
+/* شارات الأقسام الصغيرة (Section Badges / Pills) */
+.text-reveal-badge {
+  opacity: 0;
+  transform: translateY(12px) scale(0.92);
+  transition:
+    opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: 0ms;
+}
+
+.is-revealed .text-reveal-badge,
+.text-reveal.is-revealed .text-reveal-badge {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* العناوين الرئيسية (Headings) مع توهج وصول خافت وراقي */
+.text-reveal-heading {
+  opacity: 0;
+  transform: translateY(18px);
+  filter: blur(3px);
+  transition:
+    opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+    text-shadow 0.9s ease;
+  transition-delay: 70ms;
+}
+
+.is-revealed .text-reveal-heading,
+.text-reveal.is-revealed .text-reveal-heading {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0px);
+  text-shadow: 0 0 35px rgba(201, 162, 39, 0.18);
+}
+
+/* النصوص التوضيحية والفقرات التابعة (Subtitles & Paragraphs) */
+.text-reveal-sub {
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: 150ms;
+}
+
+.is-revealed .text-reveal-sub,
+.text-reveal.is-revealed .text-reveal-sub {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* احترام تفضيل تقليل الحركة */
+@media (prefers-reduced-motion: reduce) {
+  .reveal-on-scroll,
+  .card-reveal,
+  .text-reveal,
+  .text-reveal-badge,
+  .text-reveal-heading,
+  .text-reveal-sub {
+    transform: none !important;
+    filter: none !important;
+    transition: opacity 0.25s ease !important;
+  }
+  .card-sheen::after {
+    display: none !important;
+  }
+}
+
+/* توهج ناعم للأزرار والعناوين */
+.glow-text {
+  text-shadow: 0 0 25px rgba(201, 162, 39, 0.35);
+}
+
+.glow-moon {
+  filter: drop-shadow(0 0 60px rgba(230, 226, 211, 0.25)) drop-shadow(0 0 100px rgba(201, 162, 39, 0.15));
+}
+
+/* ==========================================================
+   حركات السيرة الذاتية التفاعلية الفلكية (CV Interactive FX)
+   ========================================================== */
+@keyframes cv-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(250%); }
+}
+
+.animate-shimmer {
+  animation: cv-shimmer 2.8s infinite linear;
+}
+
+@keyframes scan-beam {
+  0% { top: 0%; opacity: 0; }
+  15% { opacity: 0.9; }
+  85% { opacity: 0.9; }
+  100% { top: 98%; opacity: 0; }
+}
+
+.animate-scan-beam {
+  animation: scan-beam 3s ease-in-out infinite alternate;
+}
+
+@keyframes float-gentle {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+.animate-float-gentle {
+  animation: float-gentle 4s ease-in-out infinite;
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.05); opacity: 0.3; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes shimmer-text {
+  0% {
+    background-position: 200% center;
+  }
+  100% {
+    background-position: -200% center;
+  }
+}
+
+.animate-shimmer-text {
+  animation: shimmer-text 7s ease-in-out infinite;
+}
