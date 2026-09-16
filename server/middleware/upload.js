@@ -4,26 +4,33 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const uploadsDir = path.join(__dirname, '..', 'uploads');
+const isServerless = process.env.VERCEL === '1' || process.env.AWS_LAMBDA_FUNCTION_NAME;
+const uploadsDir = isServerless ? path.join('/tmp', 'uploads') : path.join(__dirname, '..', 'uploads');
 
-// التأكد من وجود مجلد الرفع
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
+// محاولة إنشاء مجلد الرفع بأمان دون التسبب في خطأ ببيئات الـ Serverless للقراءة فقط
+try {
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+} catch (e) {
+  // بيئة قراءة فقط، لا مشكلة سنستخدم memoryStorage
 }
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadsDir);
-  },
-  filename: (req, file, cb) => {
-    // اسم ملف آمن وخالٍ من المسافات مع طابع زمني
-    const cleanName = file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, `${uniqueSuffix}-${cleanName}`);
-  },
-});
+const storage = isServerless
+  ? multer.memoryStorage()
+  : multer.diskStorage({
+      destination: (req, file, cb) => {
+        try {
+          if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+        } catch (e) {}
+        cb(null, uploadsDir);
+      },
+      filename: (req, file, cb) => {
+        const cleanName = file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+        cb(null, `${uniqueSuffix}-${cleanName}`);
+      },
+    });
 
 const fileFilter = (req, file, cb) => {
   const allowedTypes = /jpeg|jpg|png|webp|svg|gif/;
