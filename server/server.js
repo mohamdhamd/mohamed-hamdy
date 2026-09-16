@@ -27,10 +27,27 @@ const PORT = process.env.PORT || 5000;
 // الاتصال بقاعدة البيانات
 connectDB();
 
-// الوسائط العامة (Middlewares)
+// الوسائط العامة (Middlewares) مع دعم شامل وقوي لـ CORS وطلبات الـ Preflight
+app.use((req, res, next) => {
+  const origin = req.headers.origin || '*';
+  res.header('Access-Control-Allow-Origin', origin);
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
+  res.header(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept, Authorization, X-Custom-Header'
+  );
+
+  // الرد الفوري على طلبات الـ Preflight
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  next();
+});
+
 app.use(
   cors({
-    origin: '*',
+    origin: true,
     credentials: true,
   })
 );
