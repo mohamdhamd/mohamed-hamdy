@@ -4,8 +4,10 @@ import { portfolioProjects, portfolioCertificates } from '../data/portfolioData'
 import { resumeData } from '../data/resumeData';
 import { resumeTracks } from '../data/resumeTracks';
 
-const envApiUrl = (import.meta as any).env?.VITE_API_URL;
-const API_BASE = envApiUrl ? `${envApiUrl.replace(/\/$/, '')}/api` : '/api';
+const rawApiUrl = ((import.meta as any).env?.VITE_API_URL || '').trim().replace(/\/+$/, '');
+const API_BASE = rawApiUrl
+  ? (rawApiUrl.endsWith('/api') ? rawApiUrl : `${rawApiUrl}/api`)
+  : '/api';
 const TOKEN_KEY = 'mh_portfolio_admin_token';
 
 // إعدادات الموقع الافتراضية كـ Fallback في حال تعذر الاتصال بالباك إند
