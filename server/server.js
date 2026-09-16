@@ -60,6 +60,16 @@ app.use('/api/settings', settingsRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/resume', resumeRoutes);
 
+// التأكد من جاهزية اتصال قاعدة البيانات قبل معالجة الطلبات (ضروري لبيئات Serverless)
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+  } catch (e) {
+    // Continue even if DB fails, fallback mode will handle it
+  }
+  next();
+});
+
 // معالجة المسارات غير المعرفة
 app.use('/api/*', (req, res) => {
   res.status(404).json({ success: false, message: 'المسار المطلوب غير موجود في الـ API' });
@@ -74,11 +84,16 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`
+// تشغيل الخادم محلياً (يتم تخطيه في بيئة Vercel Serverless)
+if (process.env.VERCEL !== '1') {
+  app.listen(PORT, () => {
+    console.log(`
 🚀 [Server] خادم البورتفوليو يعمل الآن بنجاح!
 📡 العنوان: http://localhost:${PORT}
 🩺 فحص الصحة: http://localhost:${PORT}/api/health
 🗄️ قاعدة البيانات: ${process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/mohamed_hamdy_portfolio'}
-  `);
-});
+    `);
+  });
+}
+
+export default app;
