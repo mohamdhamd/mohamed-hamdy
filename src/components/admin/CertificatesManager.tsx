@@ -13,6 +13,9 @@ import {
   Loader2,
   AlertCircle,
   CheckCircle2,
+  ArrowUp,
+  ArrowDown,
+  Sparkles,
 } from 'lucide-react';
 
 interface CertificatesManagerProps {
@@ -43,6 +46,9 @@ export const CertificatesManager: React.FC<CertificatesManagerProps> = ({
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // ترتيب الشهادات تصاعدياً بحسب رقم الترتيب
+  const sortedCertificates = [...certificates].sort((a, b) => (a.order || 0) - (b.order || 0));
+
   const handleOpenAdd = () => {
     soundFX.playClick();
     setIsNew(true);
@@ -58,6 +64,33 @@ export const CertificatesManager: React.FC<CertificatesManagerProps> = ({
     setIsNew(false);
     setEditingCert({ ...cert });
     setError(null);
+  };
+
+  // تقديم أو تأخير ترتيب الشهادة بضغطة زر وتحديث الباك إند فوراً
+  const handleMove = async (index: number, direction: 'up' | 'down') => {
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= sortedCertificates.length) return;
+
+    soundFX.playClick();
+    const newItems = [...sortedCertificates];
+    const [moved] = newItems.splice(index, 1);
+    newItems.splice(targetIndex, 0, moved);
+
+    const itemsToUpdate = newItems.map((item, idx) => ({
+      id: item.id,
+      order: idx + 1,
+    }));
+
+    setIsSaving(true);
+    try {
+      await certificatesApi.reorder(itemsToUpdate);
+      soundFX.playChime();
+      await onRefresh();
+    } catch (err: any) {
+      alert('تعذر تحديث ترتيب الشهادات: ' + (err.message || 'خطأ في الاتصال'));
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -104,10 +137,11 @@ export const CertificatesManager: React.FC<CertificatesManagerProps> = ({
   return (
     <div className="space-y-6">
       {/* شريط الإجراءات */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-lg font-bold font-display text-moonlight">
-            إدارة الشهادات والمسار المهني
+          <h2 className="text-lg font-bold font-display text-moonlight flex items-center gap-2">
+            <span>إدارة الشهادات والمسار المهني</span>
+            {isSaving && <Loader2 className="w-4 h-4 text-brass animate-spin" />}
           </h2>
           <p className="text-xs text-dust">
             المحطات التعليمية والاعتمادات المعروضة في خط الأبراج الفلكية الزمني
@@ -116,75 +150,127 @@ export const CertificatesManager: React.FC<CertificatesManagerProps> = ({
 
         <button
           onClick={handleOpenAdd}
-          className="px-4 py-2.5 rounded-xl bg-brass text-void font-bold text-xs flex items-center gap-1.5 hover:bg-brass/90 active:scale-95 transition-all shadow-[0_0_15px_rgba(201,162,39,0.2)]"
+          className="px-4 py-2.5 rounded-xl bg-brass text-void font-bold text-xs flex items-center gap-1.5 hover:bg-brass/90 active:scale-95 transition-all shadow-[0_0_15px_rgba(201,162,39,0.2)] self-start sm:self-auto"
         >
           <Plus className="w-4 h-4" />
           <span>إضافة اعتماد جديد</span>
         </button>
       </div>
 
-      {/* قائمة الشهادات */}
+      {/* تنبيه إرشادي لطريقة عمل الترتيب وعرض أول 3 */}
+      <div className="p-3.5 rounded-xl bg-brass/10 border border-brass/20 text-xs text-dust flex items-start gap-2.5">
+        <Sparkles className="w-4 h-4 text-brass flex-shrink-0 mt-0.5" />
+        <div className="space-y-0.5">
+          <p className="text-moonlight font-bold">
+            نظام العرض الذكي: أول 3 شهادات فقط تظهر مباشرة في الصفحة الرئيسية!
+          </p>
+          <p className="text-[11px] text-dust">
+            الشهادات التي تحمل الترتيب <span className="text-brass font-mono font-bold">#1 و #2 و #3</span> تظهر أولاً، وباقي الشهادات تظهر للزائر عند الضغط على زر <span className="text-brass font-bold">"عرض المزيد"</span>. يمكنك استخدام أزرار الأسهم (▲ / ▼) لتغيير الترتيب فوراً.
+          </p>
+        </div>
+      </div>
+
+      {/* قائمة الشهادات المرتبة */}
       <div className="bg-deep/50 border border-ink rounded-2xl overflow-hidden divide-y divide-ink">
-        {certificates.map((cert) => (
-          <div
-            key={cert.id}
-            className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-deep/80 transition-colors"
-          >
-            <div className="flex items-start gap-4">
-              <div className="w-11 h-11 rounded-xl bg-void border border-brass/30 flex items-center justify-center text-brass flex-shrink-0">
-                <GraduationCap className="w-6 h-6" />
-              </div>
-
-              <div className="space-y-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="font-bold text-moonlight text-sm">{cert.title_ar}</h3>
-                  <span className="text-xs text-dust/60 font-mono">({cert.title_en})</span>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-void border border-ink text-brass">
-                    #{cert.order}
+        {sortedCertificates.map((cert, index) => {
+          const isTopThree = index < 3;
+          return (
+            <div
+              key={cert.id}
+              className={`p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors ${
+                isTopThree ? 'bg-void/40 hover:bg-deep/80' : 'hover:bg-deep/80 opacity-90'
+              }`}
+            >
+              <div className="flex items-start gap-4">
+                {/* أزرار إعادة الترتيب للأعلى وللأسفل */}
+                <div className="flex flex-col gap-1 items-center justify-center pt-0.5">
+                  <button
+                    onClick={() => handleMove(index, 'up')}
+                    disabled={index === 0 || isSaving}
+                    title="تحريك للأعلى (تقديم الترتيب)"
+                    className="p-1 rounded bg-void border border-ink hover:border-brass text-dust hover:text-brass disabled:opacity-20 disabled:hover:border-ink disabled:hover:text-dust transition-colors"
+                  >
+                    <ArrowUp className="w-3.5 h-3.5" />
+                  </button>
+                  <span className="text-[10px] font-mono text-dust font-bold">
+                    #{cert.order || index + 1}
                   </span>
+                  <button
+                    onClick={() => handleMove(index, 'down')}
+                    disabled={index === sortedCertificates.length - 1 || isSaving}
+                    title="تحريك للأسفل (تأخير الترتيب)"
+                    className="p-1 rounded bg-void border border-ink hover:border-brass text-dust hover:text-brass disabled:opacity-20 disabled:hover:border-ink disabled:hover:text-dust transition-colors"
+                  >
+                    <ArrowDown className="w-3.5 h-3.5" />
+                  </button>
                 </div>
 
-                <p className="text-xs text-dust">
-                  {cert.issuer} · <span className="font-mono text-moonlight">{cert.issue_date}</span>
-                </p>
+                <div className="w-11 h-11 rounded-xl bg-void border border-brass/30 flex items-center justify-center text-brass flex-shrink-0">
+                  <GraduationCap className="w-6 h-6" />
+                </div>
 
-                <div className="flex items-center gap-3 text-[11px] pt-1">
-                  <span className="text-emerald-400 flex items-center gap-1">
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                    <span>{cert.status_ar}</span>
-                  </span>
+                <div className="space-y-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="font-bold text-moonlight text-sm">{cert.title_ar}</h3>
+                    <span className="text-xs text-dust/60 font-mono">({cert.title_en})</span>
 
-                  {cert.credential_url && (
-                    <a
-                      href={cert.credential_url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-brass hover:underline flex items-center gap-1"
-                    >
-                      <ExternalLink className="w-3 h-3" />
-                      <span>الرابط الموثق</span>
-                    </a>
-                  )}
+                    {/* وسم الظهور في أول 3 أو تحت المزيد */}
+                    {isTopThree ? (
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-brass/20 text-brass border border-brass/40 font-bold flex items-center gap-1">
+                        <Sparkles className="w-2.5 h-2.5" />
+                        <span>الواجهة الافتراضية (#{index + 1})</span>
+                      </span>
+                    ) : (
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-void border border-ink text-dust">
+                        تحت زر المزيد (#{index + 1})
+                      </span>
+                    )}
+                  </div>
+
+                  <p className="text-xs text-dust">
+                    {cert.issuer} · <span className="font-mono text-moonlight">{cert.issue_date}</span>
+                  </p>
+
+                  <div className="flex items-center gap-3 text-[11px] pt-1">
+                    <span className="text-emerald-400 flex items-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>{cert.status_ar}</span>
+                    </span>
+
+                    {cert.credential_url && (
+                      <a
+                        href={cert.credential_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-brass hover:underline flex items-center gap-1"
+                      >
+                        <ExternalLink className="w-3 h-3" />
+                        <span>الرابط الموثق</span>
+                      </a>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="flex items-center gap-2 self-end sm:self-center">
-              <button
-                onClick={() => handleOpenEdit(cert)}
-                className="p-2 rounded-lg bg-void border border-ink hover:border-brass text-dust hover:text-brass transition-colors"
-              >
-                <Edit2 className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setDeleteConfirmId(cert.id)}
-                className="p-2 rounded-lg bg-void border border-ink hover:border-red-500 text-dust hover:text-red-400 transition-colors"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
+              <div className="flex items-center gap-2 self-end sm:self-center">
+                <button
+                  onClick={() => handleOpenEdit(cert)}
+                  title="تعديل الشهادة"
+                  className="p-2 rounded-lg bg-void border border-ink hover:border-brass text-dust hover:text-brass transition-colors"
+                >
+                  <Edit2 className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setDeleteConfirmId(cert.id)}
+                  title="حذف الشهادة"
+                  className="p-2 rounded-lg bg-void border border-ink hover:border-red-500 text-dust hover:text-red-400 transition-colors"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* نافذة تأكيد الحذف */}

@@ -4,7 +4,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
 import { calculateMoonData, toArabicNumerals } from '../utils/astronomy';
 import { soundFX } from '../utils/audio';
-import { ArrowDown, Github, Linkedin, Send, RotateCcw, SlidersHorizontal, Clock, FileText } from 'lucide-react';
+import { ArrowDown, Github, Linkedin, Youtube, Facebook, Send, RotateCcw, SlidersHorizontal, Clock, FileText } from 'lucide-react';
 
 interface HeroProps {
   onOpenCV?: () => void;
@@ -421,24 +421,48 @@ export const Hero: React.FC<HeroProps> = ({ onOpenCV }) => {
 
           <div className="flex items-center gap-2 ms-2">
             <a
-              href={settings.github_url || 'https://github.com/mohamedhamdy'}
+              href={settings.linkedin_url || 'https://www.linkedin.com/in/mohamed-hamdey/'}
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => soundFX.playClick()}
-              className="p-3 rounded-xl border border-ink bg-void/90 hover:border-brass/40 text-dust hover:text-moonlight transition-all hover:-translate-y-0.5 shadow-lg"
-              aria-label="GitHub Profile"
-            >
-              <Github className="w-4 h-4" />
-            </a>
-            <a
-              href={settings.linkedin_url || 'https://linkedin.com/in/mohamedhamdy'}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => soundFX.playClick()}
-              className="p-3 rounded-xl border border-ink bg-void/90 hover:border-brass/40 text-dust hover:text-moonlight transition-all hover:-translate-y-0.5 shadow-lg"
+              className="p-3 rounded-xl border border-ink bg-void/90 hover:border-brass/40 text-dust hover:text-brass transition-all hover:-translate-y-0.5 shadow-lg"
+              title="LinkedIn Profile"
               aria-label="LinkedIn Profile"
             >
               <Linkedin className="w-4 h-4" />
+            </a>
+            <a
+              href={settings.youtube_url || 'https://www.youtube.com/@coding-keys'}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => soundFX.playClick()}
+              className="p-3 rounded-xl border border-ink bg-void/90 hover:border-red-500/40 text-dust hover:text-red-400 transition-all hover:-translate-y-0.5 shadow-lg"
+              title="YouTube (@coding-keys)"
+              aria-label="YouTube Channel"
+            >
+              <Youtube className="w-4 h-4" />
+            </a>
+            <a
+              href={settings.facebook_url || 'https://www.facebook.com/m0hamedhamdy1/?locale=ar_AR'}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => soundFX.playClick()}
+              className="p-3 rounded-xl border border-ink bg-void/90 hover:border-blue-500/40 text-dust hover:text-blue-400 transition-all hover:-translate-y-0.5 shadow-lg"
+              title="Facebook Profile"
+              aria-label="Facebook Profile"
+            >
+              <Facebook className="w-4 h-4" />
+            </a>
+            <a
+              href={settings.github_url || 'https://github.com/mohamdhamd'}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => soundFX.playClick()}
+              className="p-3 rounded-xl border border-ink bg-void/90 hover:border-brass/40 text-dust hover:text-moonlight transition-all hover:-translate-y-0.5 shadow-lg"
+              title="GitHub Profile"
+              aria-label="GitHub Profile"
+            >
+              <Github className="w-4 h-4" />
             </a>
           </div>
         </div>

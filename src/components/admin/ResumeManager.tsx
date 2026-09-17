@@ -338,7 +338,7 @@ export const ResumeManager: React.FC = () => {
                 <label className="block text-xs font-mono text-dust mb-1.5">رابط حساب LinkedIn</label>
                 <input
                   type="url"
-                  value={formData.personal.linkedin_url}
+                  value={formData.personal.linkedin_url || ''}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
@@ -353,11 +353,45 @@ export const ResumeManager: React.FC = () => {
                 <label className="block text-xs font-mono text-dust mb-1.5">مسار ملف الـ PDF لتحميل السيرة</label>
                 <input
                   type="text"
-                  value={formData.personal.pdf_url}
+                  value={formData.personal.pdf_url || ''}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
                       personal: { ...formData.personal, pdf_url: e.target.value },
+                    })
+                  }
+                  className="w-full bg-void border border-ink focus:border-brass rounded-lg px-3 py-2 text-xs text-moonlight outline-none font-mono"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-mono text-dust mb-1.5">رابط قناة YouTube</label>
+                <input
+                  type="url"
+                  placeholder="https://www.youtube.com/@coding-keys"
+                  value={formData.personal.youtube_url || ''}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      personal: { ...formData.personal, youtube_url: e.target.value },
+                    })
+                  }
+                  className="w-full bg-void border border-ink focus:border-brass rounded-lg px-3 py-2 text-xs text-moonlight outline-none font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono text-dust mb-1.5">رابط حساب Facebook</label>
+                <input
+                  type="url"
+                  placeholder="https://www.facebook.com/m0hamedhamdy1/"
+                  value={formData.personal.facebook_url || ''}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      personal: { ...formData.personal, facebook_url: e.target.value },
                     })
                   }
                   className="w-full bg-void border border-ink focus:border-brass rounded-lg px-3 py-2 text-xs text-moonlight outline-none font-mono"

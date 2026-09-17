@@ -1,14 +1,23 @@
 // قسم المسار المهني والشهادات بتصميم خط الأبراج الفلكية (Constellation Timeline)
-import React, { useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useData } from '../context/DataContext';
 import { useLanguage } from '../context/LanguageContext';
 import { soundFX } from '../utils/audio';
-import { CheckCircle2, ExternalLink, GraduationCap, Sparkles } from 'lucide-react';
+import { CheckCircle2, ExternalLink, GraduationCap, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
 
 export const Certificates: React.FC = () => {
   const { lang, t } = useLanguage();
   const { certificates } = useData();
+  const [showAll, setShowAll] = useState(false);
   const sectionRef = useRef<HTMLElement | null>(null);
+
+  // ترتيب الشهادات تصاعدياً بحسب الـ order المحدد في الباك إند
+  const sortedCertificates = [...certificates].sort((a, b) => (a.order || 0) - (b.order || 0));
+
+  // عرض أول 3 شهادات فقط في البداية
+  const visibleCertificates = showAll ? sortedCertificates : sortedCertificates.slice(0, 3);
+  const hasMore = sortedCertificates.length > 3;
+  const remainingCount = sortedCertificates.length - 3;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -19,14 +28,17 @@ export const Certificates: React.FC = () => {
           }
         });
       },
-      { threshold: 0.15 }
+      { threshold: 0.1 }
     );
 
     const elements = sectionRef.current?.querySelectorAll('.reveal-on-scroll');
-    elements?.forEach((el) => observer.observe(el));
+    elements?.forEach((el) => {
+      // إذا تم كشفها سابقاً نحافظ عليها كاشفة
+      observer.observe(el);
+    });
 
     return () => observer.disconnect();
-  }, []);
+  }, [showAll, certificates]);
 
   return (
     <section id="certificates" ref={sectionRef} className="py-24 sm:py-32 px-4 relative">
@@ -47,11 +59,11 @@ export const Certificates: React.FC = () => {
           {/* الخط المضيء العمودي الواصل بين النجوم */}
           <div className="absolute top-4 bottom-4 start-2 sm:start-3.5 w-0.5 bg-gradient-to-b from-brass via-moonlight/40 to-ink pointer-events-none" />
 
-          {certificates.map((cert, index) => (
+          {visibleCertificates.map((cert, index) => (
             <div
               key={cert.id}
-              style={{ '--reveal-delay': `${index * 130}ms` } as React.CSSProperties}
-              className="reveal-on-scroll card-reveal relative group"
+              style={{ '--reveal-delay': `${(index % 3) * 120}ms` } as React.CSSProperties}
+              className="reveal-on-scroll card-reveal is-revealed relative group"
             >
               {/* عقدة النجمة المضيئة على الخط الزمني */}
               <div className="absolute -start-[26px] sm:-start-[39px] top-6 w-6 h-6 rounded-full bg-void border-2 border-brass flex items-center justify-center shadow-[0_0_12px_rgba(201,162,39,0.8)] group-hover:scale-125 transition-transform duration-300">
@@ -98,6 +110,33 @@ export const Certificates: React.FC = () => {
             </div>
           ))}
         </div>
+
+        {/* زر التبديل لعرض باقي الشهادات الفلكية (المزيد / أقل) */}
+        {hasMore && (
+          <div className="text-center pt-4">
+            <button
+              onClick={() => {
+                soundFX.playClick();
+                setShowAll((prev) => !prev);
+              }}
+              className="inline-flex items-center gap-2.5 px-6 py-3 rounded-2xl bg-void/80 border border-brass/40 text-moonlight text-xs font-mono font-bold hover:border-brass hover:bg-brass/10 hover:shadow-[0_0_20px_rgba(201,162,39,0.25)] active:scale-95 transition-all group backdrop-blur-sm shadow-[0_4px_20px_rgba(0,0,0,0.5)]"
+            >
+              <Sparkles className="w-4 h-4 text-brass group-hover:rotate-12 transition-transform" />
+              <span>
+                {showAll
+                  ? t('عرض أقل (أول ٣ شهادات)', 'Show Less (Top 3)')
+                  : lang === 'ar'
+                  ? `عرض باقي الاعتمادات والشهادات (+${remainingCount})`
+                  : `Show More Credentials (+${remainingCount})`}
+              </span>
+              {showAll ? (
+                <ChevronUp className="w-4 h-4 text-brass group-hover:-translate-y-0.5 transition-transform" />
+              ) : (
+                <ChevronDown className="w-4 h-4 text-brass group-hover:translate-y-0.5 transition-transform" />
+              )}
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );

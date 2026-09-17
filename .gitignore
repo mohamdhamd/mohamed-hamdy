@@ -1,4 +1,4 @@
-﻿# Dependencies
+# Dependencies
 node_modules
 server/node_modules
 
@@ -34,4 +34,9 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
+
+# Uploads
+uploads
+server/uploads
+
 

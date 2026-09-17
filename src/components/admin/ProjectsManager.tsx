@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Project } from '../../types';
 import { projectsApi, uploadApi } from '../../services/api';
 import { soundFX } from '../../utils/audio';
+import { getFullStackData } from '../../utils/projectDomains';
 import {
   Plus,
   Edit2,
@@ -21,6 +22,11 @@ import {
   MoveDown,
   Loader2,
   AlertCircle,
+  Layers,
+  Monitor,
+  Server,
+  Database,
+  Cpu,
 } from 'lucide-react';
 
 interface ProjectsManagerProps {
@@ -39,17 +45,27 @@ const emptyProject: Partial<Project> = {
   body_en: '',
   cover: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80',
   gallery: [],
-  tech: ['React', 'TypeScript', 'Tailwind CSS'],
-  category: 'web',
-  category_label_ar: 'تطبيقات ويب',
-  category_label_en: 'Web Apps',
+  tech: ['React', 'TypeScript', 'Tailwind CSS', 'Node.js', 'MongoDB'],
+  category: 'fullstack',
+  category_label_ar: 'مواقع و Full-Stack',
+  category_label_en: 'Full-Stack Apps',
   live_url: '',
   repo_url: '',
   featured: false,
   order: 1,
   status: 'published',
   code_snippet: '',
+  fullstack_data: {
+    architecture: {
+      frontend: ['React 18', 'TypeScript', 'Tailwind CSS', 'Vite'],
+      backend: ['Node.js', 'Express REST API', 'JWT Middleware'],
+      database: ['MongoDB Atlas', 'Mongoose ORM'],
+      devops: ['Vercel / Cloud', 'Docker', 'CI/CD Pipelines'],
+    },
+  },
 };
+
+type TierKey = 'frontend' | 'backend' | 'database' | 'devops';
 
 export const ProjectsManager: React.FC<ProjectsManagerProps> = ({
   projects,
@@ -67,6 +83,12 @@ export const ProjectsManager: React.FC<ProjectsManagerProps> = ({
   const [isUploading, setIsUploading] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [techInput, setTechInput] = useState('');
+  const [tierInputs, setTierInputs] = useState<Record<TierKey, string>>({
+    frontend: '',
+    backend: '',
+    database: '',
+    devops: '',
+  });
   const [error, setError] = useState<string | null>(null);
 
   // تصفيات المشاريع
@@ -85,15 +107,88 @@ export const ProjectsManager: React.FC<ProjectsManagerProps> = ({
     setEditingProject({
       ...emptyProject,
       order: projects.length + 1,
+      fullstack_data: {
+        architecture: {
+          frontend: ['React 18', 'TypeScript', 'Tailwind CSS', 'Vite'],
+          backend: ['Node.js', 'Express REST API', 'JWT Middleware'],
+          database: ['MongoDB Atlas', 'Mongoose ORM'],
+          devops: ['Vercel / Cloud', 'Docker', 'CI/CD Pipelines'],
+        },
+      },
     });
+    setTierInputs({ frontend: '', backend: '', database: '', devops: '' });
     setError(null);
   };
 
   const handleOpenEdit = (project: Project) => {
     soundFX.playClick();
     setIsNew(false);
-    setEditingProject({ ...project });
+    const defaultMeta = getFullStackData(project);
+    const existingFullstack = project.fullstack_data || defaultMeta;
+    setEditingProject({
+      ...project,
+      fullstack_data: {
+        ...existingFullstack,
+        architecture: {
+          frontend: existingFullstack.architecture?.frontend || ['React 18', 'TypeScript', 'Tailwind CSS', 'Vite'],
+          backend: existingFullstack.architecture?.backend || ['Node.js', 'Express REST API', 'JWT Middleware'],
+          database: existingFullstack.architecture?.database || ['MongoDB Atlas', 'Mongoose ORM'],
+          devops: existingFullstack.architecture?.devops || ['Vercel / Cloud', 'Docker', 'CI/CD Pipelines'],
+        },
+      },
+    });
+    setTierInputs({ frontend: '', backend: '', database: '', devops: '' });
     setError(null);
+  };
+
+  const handleAddTierItem = (tier: TierKey) => {
+    const val = tierInputs[tier]?.trim().replace(',', '');
+    if (!val || !editingProject) return;
+
+    const currentMeta = editingProject.fullstack_data || { architecture: {} };
+    const currentArch = currentMeta.architecture || {};
+    const currentList = currentArch[tier] || [];
+
+    if (!currentList.includes(val)) {
+      setEditingProject({
+        ...editingProject,
+        fullstack_data: {
+          ...currentMeta,
+          architecture: {
+            ...currentArch,
+            [tier]: [...currentList, val],
+          },
+        },
+      });
+      soundFX.playClick();
+    }
+    setTierInputs((prev) => ({ ...prev, [tier]: '' }));
+  };
+
+  const handleRemoveTierItem = (tier: TierKey, indexToRemove: number) => {
+    if (!editingProject) return;
+    const currentMeta = editingProject.fullstack_data || { architecture: {} };
+    const currentArch = currentMeta.architecture || {};
+    const currentList = currentArch[tier] || [];
+
+    setEditingProject({
+      ...editingProject,
+      fullstack_data: {
+        ...currentMeta,
+        architecture: {
+          ...currentArch,
+          [tier]: currentList.filter((_, idx) => idx !== indexToRemove),
+        },
+      },
+    });
+    soundFX.playClick();
+  };
+
+  const handleKeyDownTier = (e: React.KeyboardEvent, tier: TierKey) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      handleAddTierItem(tier);
+    }
   };
 
   const handleCloseModal = () => {
@@ -688,6 +783,216 @@ export const ProjectsManager: React.FC<ProjectsManagerProps> = ({
                   placeholder="// اكتب دالة أو كود برمجي يعرض دقة هندسة المشروع..."
                   className="w-full bg-void border border-ink focus:border-brass rounded-lg p-3 text-xs font-mono text-moonlight outline-none"
                 />
+              </div>
+
+              {/* معمارية النظام والطبقات البرمجية (Full-Stack Architecture Tiers) */}
+              <div className="p-5 rounded-2xl bg-deep/80 border border-ink space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-ink/80 pb-3">
+                  <div className="flex items-center gap-2 text-brass">
+                    <Layers className="w-4 h-4" />
+                    <span className="font-bold text-xs sm:text-sm font-display">
+                      معمارية النظام والطبقات البرمجية (Full-Stack Architecture Tiers)
+                    </span>
+                  </div>
+                  <span className="text-[11px] font-mono text-dust/70">
+                    N-Tier Decoupled Architecture
+                  </span>
+                </div>
+
+                <p className="text-xs text-dust">
+                  تحكم في التقنيات والأدوات المعروضة داخل كل طبقة من طبقات النظام الأربعة في نافذة تفاصيل المشروع:
+                </p>
+
+                {/* شبكة الطبقات الأربعة */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* 1. الواجهة (Frontend Tier) */}
+                  <div className="p-3.5 rounded-xl bg-void/70 border border-ink/80 space-y-2.5">
+                    <div className="flex items-center justify-between text-xs font-mono text-brass">
+                      <div className="flex items-center gap-1.5 font-bold">
+                        <Monitor className="w-3.5 h-3.5" />
+                        <span>1. الواجهة (Client / Frontend)</span>
+                      </div>
+                      <span className="text-[10px] text-dust">UI & State</span>
+                    </div>
+
+                    <div className="flex flex-wrap gap-1.5 min-h-[36px] items-center p-1.5 bg-deep/50 rounded-lg border border-ink/60">
+                      {(editingProject.fullstack_data?.architecture?.frontend || []).map((item, idx) => (
+                        <span
+                          key={idx}
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-void border border-brass/25 text-[11px] font-mono text-moonlight"
+                        >
+                          <span>{item}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveTierItem('frontend', idx)}
+                            className="text-dust hover:text-red-400"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={tierInputs.frontend}
+                        onChange={(e) => setTierInputs({ ...tierInputs, frontend: e.target.value })}
+                        onKeyDown={(e) => handleKeyDownTier(e, 'frontend')}
+                        placeholder="أضف تقنية واضغط Enter..."
+                        className="flex-1 bg-void border border-ink focus:border-brass rounded-lg px-2.5 py-1.5 text-xs text-moonlight outline-none font-mono"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleAddTierItem('frontend')}
+                        className="px-2.5 py-1.5 rounded-lg bg-deep border border-ink hover:border-brass text-dust hover:text-brass text-xs font-mono shrink-0"
+                      >
+                        + إضافة
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* 2. الخادم (Backend Tier) */}
+                  <div className="p-3.5 rounded-xl bg-void/70 border border-ink/80 space-y-2.5">
+                    <div className="flex items-center justify-between text-xs font-mono text-sky-400">
+                      <div className="flex items-center gap-1.5 font-bold">
+                        <Server className="w-3.5 h-3.5" />
+                        <span>2. الخادم (REST API / Backend)</span>
+                      </div>
+                      <span className="text-[10px] text-dust">Server & Auth</span>
+                    </div>
+
+                    <div className="flex flex-wrap gap-1.5 min-h-[36px] items-center p-1.5 bg-deep/50 rounded-lg border border-ink/60">
+                      {(editingProject.fullstack_data?.architecture?.backend || []).map((item, idx) => (
+                        <span
+                          key={idx}
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-void border border-sky-500/25 text-[11px] font-mono text-moonlight"
+                        >
+                          <span>{item}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveTierItem('backend', idx)}
+                            className="text-dust hover:text-red-400"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={tierInputs.backend}
+                        onChange={(e) => setTierInputs({ ...tierInputs, backend: e.target.value })}
+                        onKeyDown={(e) => handleKeyDownTier(e, 'backend')}
+                        placeholder="أضف تقنية واضغط Enter..."
+                        className="flex-1 bg-void border border-ink focus:border-brass rounded-lg px-2.5 py-1.5 text-xs text-moonlight outline-none font-mono"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleAddTierItem('backend')}
+                        className="px-2.5 py-1.5 rounded-lg bg-deep border border-ink hover:border-brass text-dust hover:text-brass text-xs font-mono shrink-0"
+                      >
+                        + إضافة
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* 3. قاعدة البيانات (Database Tier) */}
+                  <div className="p-3.5 rounded-xl bg-void/70 border border-ink/80 space-y-2.5">
+                    <div className="flex items-center justify-between text-xs font-mono text-emerald-400">
+                      <div className="flex items-center gap-1.5 font-bold">
+                        <Database className="w-3.5 h-3.5" />
+                        <span>3. قاعدة البيانات (Database)</span>
+                      </div>
+                      <span className="text-[10px] text-dust">Data & ORM</span>
+                    </div>
+
+                    <div className="flex flex-wrap gap-1.5 min-h-[36px] items-center p-1.5 bg-deep/50 rounded-lg border border-ink/60">
+                      {(editingProject.fullstack_data?.architecture?.database || []).map((item, idx) => (
+                        <span
+                          key={idx}
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-void border border-emerald-500/25 text-[11px] font-mono text-moonlight"
+                        >
+                          <span>{item}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveTierItem('database', idx)}
+                            className="text-dust hover:text-red-400"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={tierInputs.database}
+                        onChange={(e) => setTierInputs({ ...tierInputs, database: e.target.value })}
+                        onKeyDown={(e) => handleKeyDownTier(e, 'database')}
+                        placeholder="أضف قاعدة واضغط Enter..."
+                        className="flex-1 bg-void border border-ink focus:border-brass rounded-lg px-2.5 py-1.5 text-xs text-moonlight outline-none font-mono"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleAddTierItem('database')}
+                        className="px-2.5 py-1.5 rounded-lg bg-deep border border-ink hover:border-brass text-dust hover:text-brass text-xs font-mono shrink-0"
+                      >
+                        + إضافة
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* 4. السحابة والنشر (DevOps Tier) */}
+                  <div className="p-3.5 rounded-xl bg-void/70 border border-ink/80 space-y-2.5">
+                    <div className="flex items-center justify-between text-xs font-mono text-purple-400">
+                      <div className="flex items-center gap-1.5 font-bold">
+                        <Cpu className="w-3.5 h-3.5" />
+                        <span>4. السحابة والنشر (DevOps & Cloud)</span>
+                      </div>
+                      <span className="text-[10px] text-dust">CI/CD & Cloud</span>
+                    </div>
+
+                    <div className="flex flex-wrap gap-1.5 min-h-[36px] items-center p-1.5 bg-deep/50 rounded-lg border border-ink/60">
+                      {(editingProject.fullstack_data?.architecture?.devops || []).map((item, idx) => (
+                        <span
+                          key={idx}
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-void border border-purple-500/25 text-[11px] font-mono text-moonlight"
+                        >
+                          <span>{item}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveTierItem('devops', idx)}
+                            className="text-dust hover:text-red-400"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={tierInputs.devops}
+                        onChange={(e) => setTierInputs({ ...tierInputs, devops: e.target.value })}
+                        onKeyDown={(e) => handleKeyDownTier(e, 'devops')}
+                        placeholder="أضف أداة سحابية واضغط Enter..."
+                        className="flex-1 bg-void border border-ink focus:border-brass rounded-lg px-2.5 py-1.5 text-xs text-moonlight outline-none font-mono"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleAddTierItem('devops')}
+                        className="px-2.5 py-1.5 rounded-lg bg-deep border border-ink hover:border-brass text-dust hover:text-brass text-xs font-mono shrink-0"
+                      >
+                        + إضافة
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* خيار المشروع المميز (Featured) */}

@@ -388,7 +388,7 @@ export const ProjectsBoardModal: React.FC<ProjectsBoardModalProps> = ({
                         <img
                           src={project.cover}
                           alt={lang === 'ar' ? project.title_ar : project.title_en}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
                           loading="lazy"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-deep via-transparent to-transparent" />
@@ -405,7 +405,7 @@ export const ProjectsBoardModal: React.FC<ProjectsBoardModalProps> = ({
                           <div className="flex items-center gap-1.5 text-xs font-mono text-brass">
                             {domain === 'fullstack' && <Monitor className="w-3 h-3" />}
                             {domain === 'data_analysis' && <BarChart3 className="w-3 h-3" />}
-                            {domain === 'accounting' && <Scale className="w-3 h-3" />}
+                            {domain === 'accounting' && <Scale className="w-3.5 h-3.5" />}
                             <span>{lang === 'ar' ? project.category_label_ar : project.category_label_en}</span>
                           </div>
                           <h4 className="text-sm sm:text-base font-bold font-display text-moonlight group-hover:text-brass transition-colors">
@@ -428,8 +428,10 @@ export const ProjectsBoardModal: React.FC<ProjectsBoardModalProps> = ({
                             ))}
                           </div>
                           <div className="flex items-center justify-between text-xs text-brass pt-1">
-                            <span>{t('عرض التفاصيل والكود المصدري', 'View details & code')}</span>
-                            <ArrowUpRight className="w-3.5 h-3.5" />
+                            <div className="inline-flex items-center gap-1.5 font-medium group-hover:underline">
+                              <span>{t('عرض التفاصيل والكود المصدري', 'View details & code')}</span>
+                              <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 rtl:group-hover:-translate-x-0.5" />
+                            </div>
                           </div>
                         </div>
                       </div>

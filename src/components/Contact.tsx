@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
 import { soundFX } from '../utils/audio';
-import { Mail, Linkedin, Github, Send, Copy, Check, MessageSquare, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Mail, Linkedin, Github, Youtube, Facebook, Send, Copy, Check, MessageSquare, Sparkles, CheckCircle2 } from 'lucide-react';
 
 export const Contact: React.FC = () => {
   const { t, lang } = useLanguage();
@@ -204,25 +204,47 @@ export const Contact: React.FC = () => {
           </div>
         </div>
 
-        {/* روابط الشبكات المهنية */}
-        <div className="reveal-on-scroll text-reveal-sub flex items-center justify-center gap-4 pt-2">
+        {/* روابط الشبكات المهنية والاجتماعية */}
+        <div className="reveal-on-scroll text-reveal-sub flex flex-wrap items-center justify-center gap-3 pt-2">
           <a
-            href={settings.linkedin_url || 'https://linkedin.com/in/mohamedhamdy'}
+            href={settings.linkedin_url || 'https://www.linkedin.com/in/mohamed-hamdey/'}
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => soundFX.playClick()}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl glass-card text-dust hover:text-moonlight text-sm font-sans font-medium transition-all group hover:-translate-y-0.5"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl glass-card text-dust hover:text-brass text-sm font-sans font-medium transition-all group hover:-translate-y-0.5 border border-ink hover:border-brass/40"
           >
             <Linkedin className="w-4 h-4 text-brass group-hover:scale-110 transition-transform" />
             <span>LinkedIn</span>
           </a>
 
           <a
-            href={settings.github_url || 'https://github.com/mohamedhamdy'}
+            href={settings.youtube_url || 'https://www.youtube.com/@coding-keys'}
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => soundFX.playClick()}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl glass-card text-dust hover:text-moonlight text-sm font-sans font-medium transition-all group hover:-translate-y-0.5"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl glass-card text-dust hover:text-red-400 text-sm font-sans font-medium transition-all group hover:-translate-y-0.5 border border-ink hover:border-red-500/40"
+          >
+            <Youtube className="w-4 h-4 text-red-400 group-hover:scale-110 transition-transform" />
+            <span>YouTube</span>
+          </a>
+
+          <a
+            href={settings.facebook_url || 'https://www.facebook.com/m0hamedhamdy1/?locale=ar_AR'}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => soundFX.playClick()}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl glass-card text-dust hover:text-blue-400 text-sm font-sans font-medium transition-all group hover:-translate-y-0.5 border border-ink hover:border-blue-500/40"
+          >
+            <Facebook className="w-4 h-4 text-blue-400 group-hover:scale-110 transition-transform" />
+            <span>Facebook</span>
+          </a>
+
+          <a
+            href={settings.github_url || 'https://github.com/mohamdhamd'}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => soundFX.playClick()}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl glass-card text-dust hover:text-moonlight text-sm font-sans font-medium transition-all group hover:-translate-y-0.5 border border-ink hover:border-brass/40"
           >
             <Github className="w-4 h-4 text-brass group-hover:scale-110 transition-transform" />
             <span>GitHub</span>

@@ -152,33 +152,21 @@ export const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({
           </div>
         </div>
 
-        {/* روابط التواصل والبريد */}
+        {/* روابط التواصل والبريد والشبكات الاجتماعية */}
         <div className="bg-deep/50 border border-ink rounded-2xl p-6 space-y-4">
           <h3 className="text-sm font-mono text-brass uppercase tracking-wider">
-            روابط التواصل والمراسلة
+            روابط التواصل والمراسلة والشبكات الاجتماعية
           </h3>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-xs font-mono text-dust mb-1.5">
                 البريد الإلكتروني الرسمي
               </label>
               <input
                 type="email"
-                value={formData.email}
+                value={formData.email || ''}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full bg-void border border-ink focus:border-brass rounded-lg px-3 py-2 text-xs text-moonlight outline-none font-mono"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-mono text-dust mb-1.5">
-                رابط حساب GitHub
-              </label>
-              <input
-                type="url"
-                value={formData.github_url}
-                onChange={(e) => setFormData({ ...formData, github_url: e.target.value })}
                 className="w-full bg-void border border-ink focus:border-brass rounded-lg px-3 py-2 text-xs text-moonlight outline-none font-mono"
               />
             </div>
@@ -189,9 +177,49 @@ export const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({
               </label>
               <input
                 type="url"
-                value={formData.linkedin_url}
+                value={formData.linkedin_url || ''}
                 onChange={(e) => setFormData({ ...formData, linkedin_url: e.target.value })}
+                placeholder="https://www.linkedin.com/in/..."
                 className="w-full bg-void border border-ink focus:border-brass rounded-lg px-3 py-2 text-xs text-moonlight outline-none font-mono"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-mono text-dust mb-1.5">
+                رابط حساب GitHub
+              </label>
+              <input
+                type="url"
+                value={formData.github_url || ''}
+                onChange={(e) => setFormData({ ...formData, github_url: e.target.value })}
+                placeholder="https://github.com/..."
+                className="w-full bg-void border border-ink focus:border-brass rounded-lg px-3 py-2 text-xs text-moonlight outline-none font-mono"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-mono text-dust mb-1.5 text-red-400">
+                رابط قناة YouTube
+              </label>
+              <input
+                type="url"
+                value={formData.youtube_url || ''}
+                onChange={(e) => setFormData({ ...formData, youtube_url: e.target.value })}
+                placeholder="https://www.youtube.com/@..."
+                className="w-full bg-void border border-ink focus:border-red-500 rounded-lg px-3 py-2 text-xs text-moonlight outline-none font-mono"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-mono text-dust mb-1.5 text-blue-400">
+                رابط حساب Facebook
+              </label>
+              <input
+                type="url"
+                value={formData.facebook_url || ''}
+                onChange={(e) => setFormData({ ...formData, facebook_url: e.target.value })}
+                placeholder="https://www.facebook.com/..."
+                className="w-full bg-void border border-ink focus:border-blue-500 rounded-lg px-3 py-2 text-xs text-moonlight outline-none font-mono"
               />
             </div>
           </div>

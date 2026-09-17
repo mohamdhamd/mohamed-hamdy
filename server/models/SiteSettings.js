@@ -35,11 +35,19 @@ const siteSettingsSchema = new mongoose.Schema(
     },
     github_url: {
       type: String,
-      default: 'https://github.com/mohamedhamdy',
+      default: 'https://github.com/mohamdhamd',
     },
     linkedin_url: {
       type: String,
-      default: 'https://linkedin.com/in/mohammed-hamdy-761369324',
+      default: 'https://www.linkedin.com/in/mohamed-hamdey/',
+    },
+    youtube_url: {
+      type: String,
+      default: 'https://www.youtube.com/@coding-keys',
+    },
+    facebook_url: {
+      type: String,
+      default: 'https://www.facebook.com/m0hamedhamdy1/?locale=ar_AR',
     },
     cma_status_ar: {
       type: String,

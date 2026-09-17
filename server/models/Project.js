@@ -85,6 +85,18 @@ const projectSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    fullstack_data: {
+      type: mongoose.Schema.Types.Mixed,
+      default: null,
+    },
+    analytics_data: {
+      type: mongoose.Schema.Types.Mixed,
+      default: null,
+    },
+    accounting_data: {
+      type: mongoose.Schema.Types.Mixed,
+      default: null,
+    },
   },
   {
     timestamps: true,

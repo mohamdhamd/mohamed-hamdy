@@ -350,7 +350,7 @@ export const About: React.FC = () => {
   "contact": {
     "email": "mohamed.hamdy.fawzy0@gmail.com",
     "phone": "+20 115 299 9615",
-    "linkedin": "mohammed-hamdy-761369324"
+    "linkedin": "mohamed-hamdey"
   },
   "military_status": "مؤجل (Postponed)",
   "status": "جاهز للأنظمة المعقدة وحلول الأعمال والمالية والبرمجيات",
@@ -377,7 +377,7 @@ export const About: React.FC = () => {
   "contact": {
     "email": "mohamed.hamdy.fawzy0@gmail.com",
     "phone": "+20 115 299 9615",
-    "linkedin": "mohammed-hamdy-761369324"
+    "linkedin": "mohamed-hamdey"
   },
   "military_status": "Postponed",
   "status": "Ready for complex systems, financial logic & modern web apps",

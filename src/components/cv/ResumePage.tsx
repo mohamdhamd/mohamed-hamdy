@@ -16,6 +16,8 @@ import {
   Phone,
   MapPin,
   Linkedin,
+  Youtube,
+  Facebook,
   GraduationCap,
   Award,
   Briefcase,
@@ -626,16 +628,44 @@ export const ResumePage: React.FC<ResumePageProps> = ({ onBackToSite }) => {
                 <span dir="ltr">{cvData.personal.phone}</span>
               </a>
 
-              <a
-                href={cvData.personal.linkedin_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => soundFX.playClick()}
-                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-void/80 border border-ink text-xs font-mono text-dust hover:text-brass hover:border-brass/40 transition-all hover:-translate-y-0.5 shadow-sm"
-              >
-                <Linkedin className="w-3.5 h-3.5 text-brass" />
-                <span>{cvData.personal.linkedin}</span>
-              </a>
+              {cvData.personal.linkedin_url && (
+                <a
+                  href={cvData.personal.linkedin_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => soundFX.playClick()}
+                  className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-void/80 border border-ink text-xs font-mono text-dust hover:text-brass hover:border-brass/40 transition-all hover:-translate-y-0.5 shadow-sm"
+                >
+                  <Linkedin className="w-3.5 h-3.5 text-brass" />
+                  <span>{cvData.personal.linkedin || 'LinkedIn'}</span>
+                </a>
+              )}
+
+              {cvData.personal.youtube_url && (
+                <a
+                  href={cvData.personal.youtube_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => soundFX.playClick()}
+                  className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-void/80 border border-ink text-xs font-mono text-dust hover:text-red-400 hover:border-red-400/40 transition-all hover:-translate-y-0.5 shadow-sm"
+                >
+                  <Youtube className="w-3.5 h-3.5 text-red-400" />
+                  <span>YouTube</span>
+                </a>
+              )}
+
+              {cvData.personal.facebook_url && (
+                <a
+                  href={cvData.personal.facebook_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => soundFX.playClick()}
+                  className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-void/80 border border-ink text-xs font-mono text-dust hover:text-sky-400 hover:border-sky-400/40 transition-all hover:-translate-y-0.5 shadow-sm"
+                >
+                  <Facebook className="w-3.5 h-3.5 text-sky-400" />
+                  <span>Facebook</span>
+                </a>
+              )}
 
               <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-void/80 border border-ink text-xs font-mono text-dust">
                 <MapPin className="w-3.5 h-3.5 text-dust/60" />

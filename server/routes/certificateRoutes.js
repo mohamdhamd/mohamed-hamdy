@@ -1,5 +1,6 @@
 // مسارات الشهادات والمسار المهني مع الدعم التلقائي المزدوج (MongoDB + Memory Fallback)
 import express from 'express';
+import mongoose from 'mongoose';
 import { Certificate } from '../models/Certificate.js';
 import { requireAuth } from '../middleware/auth.js';
 import { isMongoDBConnected } from '../config/db.js';
@@ -59,6 +60,44 @@ router.post('/', requireAuth, async (req, res) => {
   }
 });
 
+// تحديث ترتيب مجموعة شهادات (Reorder batch)
+router.put('/reorder/batch', requireAuth, async (req, res) => {
+  try {
+    const { items } = req.body;
+    if (!Array.isArray(items)) {
+      return res.status(400).json({ success: false, message: 'تنسيق البيانات غير صحيح' });
+    }
+
+    if (isMongoDBConnected()) {
+      try {
+        const updates = items.map((item) =>
+          Certificate.updateOne(
+            {
+              $or: [
+                { id: item.id },
+                ...(mongoose.Types.ObjectId.isValid(item.id) ? [{ _id: item.id }] : []),
+              ],
+            },
+            { $set: { order: item.order } }
+          )
+        );
+        await Promise.all(updates);
+      } catch (dbErr) {
+        console.warn('DB certs reorder failed, fallback:', dbErr.message);
+      }
+    }
+
+    for (const item of items) {
+      const c = memoryStore.certificates.find((cert) => cert.id === item.id || cert._id === item.id);
+      if (c) c.order = item.order;
+    }
+
+    return res.json({ success: true, message: 'تم تحديث ترتيب الشهادات بنجاح' });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: 'تعذر إعادة ترتيب الشهادات' });
+  }
+});
+
 // تعديل شهادة
 router.put('/:id', requireAuth, async (req, res) => {
   try {
@@ -66,12 +105,18 @@ router.put('/:id', requireAuth, async (req, res) => {
 
     if (isMongoDBConnected()) {
       try {
-        const updated = await Certificate.findOneAndUpdate({ id }, req.body, {
+        const query = {
+          $or: [
+            { id },
+            ...(mongoose.Types.ObjectId.isValid(id) ? [{ _id: id }] : []),
+          ],
+        };
+        const updated = await Certificate.findOneAndUpdate(query, req.body, {
           new: true,
           runValidators: true,
         });
         if (updated) {
-          const idx = memoryStore.certificates.findIndex((c) => c.id === id);
+          const idx = memoryStore.certificates.findIndex((c) => c.id === id || c._id === id);
           if (idx !== -1) memoryStore.certificates[idx] = updated.toObject();
           return res.json({ success: true, message: 'تم تعديل الشهادة بنجاح', data: updated });
         }
@@ -80,7 +125,7 @@ router.put('/:id', requireAuth, async (req, res) => {
       }
     }
 
-    const idx = memoryStore.certificates.findIndex((c) => c.id === id);
+    const idx = memoryStore.certificates.findIndex((c) => c.id === id || c._id === id);
     if (idx === -1) {
       return res.status(404).json({ success: false, message: 'الشهادة غير موجودة' });
     }
@@ -99,13 +144,19 @@ router.delete('/:id', requireAuth, async (req, res) => {
 
     if (isMongoDBConnected()) {
       try {
-        await Certificate.findOneAndDelete({ id });
+        const query = {
+          $or: [
+            { id },
+            ...(mongoose.Types.ObjectId.isValid(id) ? [{ _id: id }] : []),
+          ],
+        };
+        await Certificate.findOneAndDelete(query);
       } catch (dbErr) {
         console.warn('DB delete cert failed, fallback:', dbErr.message);
       }
     }
 
-    memoryStore.certificates = memoryStore.certificates.filter((c) => c.id !== id);
+    memoryStore.certificates = memoryStore.certificates.filter((c) => c.id !== id && c._id !== id);
     return res.json({ success: true, message: 'تم حذف الشهادة بنجاح' });
   } catch (error) {
     return res.status(500).json({ success: false, message: 'تعذر حذف الشهادة' });

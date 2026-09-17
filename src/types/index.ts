@@ -150,6 +150,8 @@ export interface SiteSettings {
   email: string;
   github_url: string;
   linkedin_url: string;
+  youtube_url?: string;
+  facebook_url?: string;
   cma_status_ar: string;
   cma_status_en: string;
   location_ar: string;
@@ -190,6 +192,8 @@ export interface ResumePersonal {
   email: string;
   linkedin: string;
   linkedin_url: string;
+  youtube_url?: string;
+  facebook_url?: string;
   military_status_ar: string;
   military_status_en: string;
   pdf_filename: string;

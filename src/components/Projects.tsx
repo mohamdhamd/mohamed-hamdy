@@ -7,7 +7,7 @@ import { ProjectModal } from './ProjectModal';
 import { ProjectsBoardModal } from './ProjectsBoardModal';
 import { soundFX } from '../utils/audio';
 import { getProjectDomain } from '../utils/projectDomains';
-import { FolderGit2, Star, ArrowUpRight, Monitor, BarChart3, Scale, Layers, LayoutGrid, ArrowRight } from 'lucide-react';
+import { FolderGit2, Star, ArrowUpRight, Monitor, BarChart3, Scale, Layers, LayoutGrid, ArrowRight, Sparkles } from 'lucide-react';
 
 export const Projects: React.FC = () => {
   const { lang, t } = useLanguage();
@@ -139,15 +139,13 @@ export const Projects: React.FC = () => {
         {/* شبكة الكروت التفاعلية ثلاثية الأبعاد مع أنيميشن انسيابي ومريح للعين (الـ 6 مشاريع الأولى) */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           {displayedProjects.map((project, index) => {
-            const isFeatured = project.featured && activeCategory === 'all';
+            const isFeatured = project.featured;
             const domain = getProjectDomain(project);
             return (
               <div
                 key={project.id}
                 style={{ '--reveal-delay': `${(index % 3) * 110}ms` } as React.CSSProperties}
-                className={`reveal-on-scroll card-reveal ${
-                  isFeatured ? 'md:col-span-2 lg:col-span-2' : 'col-span-1'
-                }`}
+                className="reveal-on-scroll card-reveal col-span-1"
               >
                 <div
                   onMouseMove={handleCardMouseMove}
@@ -157,65 +155,78 @@ export const Projects: React.FC = () => {
                     setSelectedProject(project);
                   }}
                   style={{ transition: 'border-color 0.3s, box-shadow 0.3s' }}
-                  className="h-full glass-card card-spotlight card-sheen group cursor-pointer rounded-2xl overflow-hidden flex flex-col justify-between"
+                  className="h-full glass-card card-spotlight card-sheen group cursor-pointer rounded-3xl overflow-hidden flex flex-col justify-between border border-ink/80 hover:border-brass/40 shadow-xl hover:shadow-2xl transition-all duration-300"
                 >
-                  {/* الغلاف */}
-                  <div className={`relative overflow-hidden w-full ${isFeatured ? 'h-60 sm:h-72' : 'h-52'}`}>
+                  {/* الغلاف الإبداعي بارتفاع موحد لجميع الكروت */}
+                  <div className="relative overflow-hidden w-full bg-deep h-52 sm:h-60">
                     <img
                       src={project.cover}
                       alt={lang === 'ar' ? project.title_ar : project.title_en}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
                       loading="lazy"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-deep via-deep/40 to-transparent" />
+                    {/* تدرج هادئ وناعم لا يحجب واجهة المستخدم */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-deep via-deep/20 to-transparent pointer-events-none" />
 
+                    {/* شارة التميز */}
                     {isFeatured && (
-                      <div className="absolute top-4 start-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-sans font-bold bg-brass text-void shadow-lg">
+                      <div className="absolute top-4 start-4 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-mono font-bold bg-brass/95 text-void shadow-astral backdrop-blur-md z-10">
                         <Star className="w-3.5 h-3.5 fill-void" />
                         <span>{t('مشروع مميز', 'Featured Project')}</span>
                       </div>
                     )}
 
-                    <div className="absolute top-4 end-4 p-2.5 rounded-full bg-void/70 backdrop-blur-md text-moonlight opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:scale-110 border border-brass/30">
+                    {/* مؤشر تفاعلي يظهر عند التحويم */}
+                    <div className="absolute top-4 end-4 p-2.5 rounded-full bg-void/80 backdrop-blur-md text-moonlight opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:scale-110 border border-brass/40 shadow-lg z-10">
                       <ArrowUpRight className="w-4 h-4 text-brass" />
                     </div>
                   </div>
 
-                  {/* المحتوى النصي */}
+                  {/* المحتوى النصي الأنيق */}
                   <div className="p-6 sm:p-7 flex-1 flex flex-col justify-between space-y-5">
-                    <div className="space-y-2.5">
-                      <div className="flex items-center gap-1.5 text-xs font-mono text-brass font-medium">
-                        {domain === 'fullstack' && <Monitor className="w-3 h-3" />}
-                        {domain === 'data_analysis' && <BarChart3 className="w-3 h-3" />}
-                        {domain === 'accounting' && <Scale className="w-3 h-3" />}
+                    <div className="space-y-3">
+                      {/* التصنيف ككبسولة أنيقة */}
+                      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-brass/10 border border-brass/25 text-xs font-mono text-brass font-medium w-fit">
+                        {domain === 'fullstack' && <Monitor className="w-3.5 h-3.5" />}
+                        {domain === 'data_analysis' && <BarChart3 className="w-3.5 h-3.5" />}
+                        {domain === 'accounting' && <Scale className="w-3.5 h-3.5" />}
                         <span>{lang === 'ar' ? project.category_label_ar : project.category_label_en}</span>
                       </div>
-                      <h3 className="font-display text-xl sm:text-2xl font-bold text-moonlight group-hover:text-brass transition-colors">
+
+                      {/* عنوان المشروع */}
+                      <h3 className="font-display text-xl sm:text-2xl font-bold text-moonlight group-hover:text-brass transition-colors tracking-tight">
                         {lang === 'ar' ? project.title_ar : project.title_en}
                       </h3>
-                      <p className="text-sm text-dust font-sans line-clamp-2 leading-relaxed">
+
+                      {/* وصف المشروع */}
+                      <p className="text-sm text-dust/90 font-sans line-clamp-2 leading-relaxed">
                         {lang === 'ar' ? project.summary_ar : project.summary_en}
                       </p>
                     </div>
 
                     {/* شريط التقنيات والروابط */}
-                    <div className="space-y-4 pt-3 border-t border-ink/80">
-                      <div className="flex flex-wrap gap-1.5">
+                    <div className="space-y-4 pt-4 border-t border-ink/80">
+                      <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                         {project.tech.map((tItem) => (
                           <span
                             key={tItem}
-                            className="text-[11px] font-mono px-2.5 py-1 rounded-md bg-ink/40 text-dust/90 border border-ink/80"
+                            className="text-[11px] font-mono px-2.5 py-1 rounded-lg bg-void/80 text-dust/90 border border-ink/80 group-hover:border-brass/20 transition-colors shadow-sm"
                           >
                             {tItem}
                           </span>
                         ))}
                       </div>
 
-                      <div className="flex items-center justify-between text-xs font-sans text-brass pt-1">
-                        <span className="font-medium group-hover:underline">
-                          {t('عرض التفاصيل والكود المصدري', 'View details & code')}
+                      {/* زر الاستكشاف مع السهم بجانبه مباشرة */}
+                      <div className="flex items-center justify-between text-xs sm:text-sm font-sans text-brass pt-1">
+                        <div className="inline-flex items-center gap-2 font-medium group-hover:text-brass-light transition-all">
+                          <span>{t('عرض التفاصيل والكود المصدري', 'View details & code')}</span>
+                          <ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1 rtl:group-hover:-translate-x-1" />
+                        </div>
+                        <span className="text-[11px] font-mono text-dust/50 group-hover:text-brass/70 transition-colors flex items-center gap-1">
+                          <Sparkles className="w-3 h-3" />
+                          <span>{t('استكشاف', 'Explore')}</span>
                         </span>
-                        <ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                       </div>
                     </div>
                   </div>
